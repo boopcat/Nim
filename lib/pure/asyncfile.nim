@@ -112,6 +112,12 @@ proc openAsync*(filename: string, mode = fmRead): AsyncFile =
 
     register(result.fd)
 
+proc openAsync*(filehandle: FileHandle): AsyncFile =
+  ## Opens the ``filehandle`` FileHandle asynchronously.
+  new result
+  result.fd = filehandle.TAsyncFD
+  register(result.fd)
+
 proc read*(f: AsyncFile, size: int): Future[string] =
   ## Read ``size`` bytes from the specified file asynchronously starting at
   ## the current position of the file pointer.
