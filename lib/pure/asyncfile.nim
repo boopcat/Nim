@@ -112,10 +112,19 @@ proc openAsync*(filename: string, mode = fmRead): AsyncFile =
 
     register(result.fd)
 
-proc openAsync*(filehandle: FileHandle): AsyncFile =
+proc openAsync*(fh: FileHandle): AsyncFile =
   ## Opens the ``filehandle`` FileHandle asynchronously.
   new result
-  result.fd = filehandle.TAsyncFD
+  when defined(windows) or defined(nimdoc):
+    let newfh = reopenFile(fh, GENERIC_READ, FILE_SHARE_READ, FILE_FLAG_OPERLAPPED)
+    result.fd = newfh.TAsyncFD
+  else:
+    var flags: int = fcntl(fh, F_GETFL, 0)
+    if flags == -1:
+      raiseOSError(osLastError())
+    if fcntl(fh, F_SETFL, flags or O_NONBLOCK) == -1:
+      raiseOSError(osLastError())
+    result.fd = fh.TAsyncFD
   register(result.fd)
 
 proc read*(f: AsyncFile, size: int): Future[string] =
@@ -201,10 +210,10 @@ proc read*(f: AsyncFile, size: int): Future[string] =
         readBuffer.setLen(res)
         f.offset.inc(res)
         retFuture.complete(readBuffer)
-    
+
     if not cb(f.fd):
       addRead(f.fd, cb)
-  
+
   return retFuture
 
 proc readLine*(f: AsyncFile): Future[string] {.async.} =
@@ -228,7 +237,7 @@ proc getFilePos*(f: AsyncFile): int64 =
 
 proc setFilePos*(f: AsyncFile, pos: int64) =
   ## Sets the position of the file pointer that is used for read/write
-  ## operations. The file's first byte has the index zero. 
+  ## operations. The file's first byte has the index zero.
   f.offset = pos
   when not defined(windows) and not defined(nimdoc):
     let ret = lseek(f.fd.cint, pos, SEEK_SET)
@@ -297,7 +306,7 @@ proc write*(f: AsyncFile, data: string): Future[void] =
         retFuture.complete()
   else:
     var written = 0
-    
+
     proc cb(fd: TAsyncFD): bool =
       result = true
       let remainderSize = data.len-written
@@ -315,7 +324,7 @@ proc write*(f: AsyncFile, data: string): Future[void] =
           result = false # We still have data to write.
         else:
           retFuture.complete()
-    
+
     if not cb(f.fd):
       addWrite(f.fd, cb)
   return retFuture

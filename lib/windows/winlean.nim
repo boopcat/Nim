@@ -626,6 +626,11 @@ else:
   proc deleteFileA*(pathName: cstring): int32 {.
     importc: "DeleteFileA", dynlib: "kernel32", stdcall.}
 
+
+proc reopenFile*(hOriginalFile: THANDLE, dwDesiredAccess, dwShareMode,
+                 dwFlags: DWORD): THANDLE {.
+    stdcall, dynlib: "kernel32", importc: "ReOpenFile".}
+
 proc setEndOfFile*(hFile: THandle): WINBOOL {.stdcall, dynlib: "kernel32",
     importc: "SetEndOfFile".}
 
