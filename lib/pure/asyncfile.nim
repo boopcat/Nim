@@ -116,7 +116,10 @@ proc openAsync*(fh: FileHandle): AsyncFile =
   ## Opens the ``filehandle`` FileHandle asynchronously.
   new result
   when defined(windows) or defined(nimdoc):
-    let newfh = reopenFile(fh, GENERIC_READ, FILE_SHARE_READ, FILE_FLAG_OPERLAPPED)
+    let newfh = reopenFile(fh, GENERIC_READ, FILE_SHARE_READ, FILE_FLAG_OVERLAPPED)
+    if newfh.THandle == INVALID_HANDLE_VALUE:
+      raiseOSError(osLastError())
+
     result.fd = newfh.TAsyncFD
   else:
     var flags: int = fcntl(fh, F_GETFL, 0)
