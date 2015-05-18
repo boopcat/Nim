@@ -395,7 +395,7 @@ when defined(Windows) and not defined(useNimRtl):
   #  O_RDONLY {.importc: "_O_RDONLY", header: "<fcntl.h>".}: int
 
   proc createPipeHandles(rdHandle, wrHandle: var THandle) =
-    let pipePath = "\\\\.\\Pipe\\nim.osproc." & $genOid
+    let pipePath = "\\\\.\\Pipe\\nim.osproc." & ($genOid())
     var piInheritablePipe: TSECURITY_ATTRIBUTES
     piInheritablePipe.nLength = sizeof(TSECURITY_ATTRIBUTES).cint
     piInheritablePipe.lpSecurityDescriptor = nil
