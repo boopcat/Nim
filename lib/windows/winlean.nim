@@ -641,7 +641,7 @@ const
 
 when useWinUnicode:
   proc createFileW*(lpFileName: WideCString, dwDesiredAccess, dwShareMode: DWORD,
-                    lpSecurityAttributes: TSECURITY_ATTRIIBUTES = nil,
+                    lpSecurityAttributes: TSECURITY_ATTRIBUTES = nil,
                     dwCreationDisposition, dwFlagsAndAttributes: DWORD,
                     hTemplateFile: THandle): THandle {.
       stdcall, dynlib: "kernel32", importc: "CreateFileW".}
