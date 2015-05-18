@@ -414,13 +414,13 @@ when defined(Windows) and not defined(useNimRtl):
       raiseOSError(osLastError())
 
     when useWinUnicode:
-      wrHandle = createFileW(newWideCString(pipePath), GENERIC_WRITE, 0'i32,
+      wrHandle = createFileW(newWideCString(pipePath), GENERIC_WRITE, 0,
                              piInheritablePipe, OPEN_EXISTING,
-                             FILE_ATTRIBUTE_NORMAL, nil)
+                             FILE_ATTRIBUTE_NORMAL, 0)
     else:
-      wrHandle = createFileA(pipePath, GENERIC_WRITE, 0'i32,
+      wrHandle = createFileA(pipePath, GENERIC_WRITE, 0,
                              piInheritablePipe, OPEN_EXISTING,
-                             FILE_ATTRIBUTE_NORMAL, nil)
+                             FILE_ATTRIBUTE_NORMAL, 0)
     if rdHandle == INVALID_HANDLE_VALUE:
       raiseOSError(osLastError())
 
