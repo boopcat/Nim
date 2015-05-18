@@ -401,12 +401,12 @@ when defined(Windows) and not defined(useNimRtl):
     piInheritablePipe.lpSecurityDescriptor = nil
     piInheritablePipe.bInheritHandle = 1
     when useWinUnicode:
-      rdHandle = CreateNamedPipeW(newWideCString(pipePath),
+      rdHandle = createNamedPipeW(newWideCString(pipePath),
                                   PIPE_ACCESS_INBOUND,
                                   PIPE_TYPE_BYTE or PIPE_WAIT,
                                   1, 1024, 0, 0, piInheritablePipe)
     else:
-      rdHandle = CreateNamedPipeA(pipePath,
+      rdHandle = createNamedPipeA(pipePath,
                                   PIPE_ACCESS_INBOUND,
                                   PIPE_TYPE_BYTE or PIPE_WAIT,
                                   1, 1024, 0, 0, piInheritablePipe)
@@ -414,11 +414,11 @@ when defined(Windows) and not defined(useNimRtl):
       raiseOSError(osLastError())
 
     when useWinUnicode:
-      wrHandle = CreateFileW(newWideCString(pipePath), GENERIC_WRITE, 0,
+      wrHandle = createFileW(newWideCString(pipePath), GENERIC_WRITE, 0,
                              piInheritablePipe, OPEN_EXISTING,
                              FILE_ATTRIBUTE_NORMAL, nil)
     else:
-      wrHandle = CreateFileA(pipePath, GENERIC_WRITE, 0,
+      wrHandle = createFileA(pipePath, GENERIC_WRITE, 0,
                              piInheritablePipe, OPEN_EXISTING,
                              FILE_ATTRIBUTE_NORMAL, nil)
     if rdHandle == INVALID_HANDLE_VALUE:
