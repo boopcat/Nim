@@ -119,6 +119,36 @@ proc createPipe*(hReadPipe, hWritePipe: var THandle,
                  nSize: int32): WINBOOL{.
     stdcall, dynlib: "kernel32", importc: "CreatePipe".}
 
+const
+  PIPE_ACCESS_DUPLEX* = 3'i32
+  PIPE_ACCESS_INBOUND* = 1'i32
+  PIPE_ACCESS_OUTBOUND* = 2'i32
+  WRITE_DAC* = 0x00040000'i32
+  WRITE_OWNER* = 0x00080000'32
+  ACCESS_SYSTEM_SECURITY* = 0x01000000'i32
+  PIPE_TYPE_BYTE* = 0'i32
+  PIPE_TYPE_MESSAGE* = 4'i32
+  PIPE_READMODE_BYTE* = 0'i32
+  PIPE_READMODE_MESSAGE* = 2'i32
+  PIPE_WAIT* = 0'i32
+  PIPE_NOWAIT* = 1'i32
+
+when useWinUnicode:
+  proc createNamedPipeW*(lpname: WideCString, dwOpenMode, dwPipeMode,
+                         nMaxInstances, nOutBufferSize, nInBufferSize,
+                         nDefaultTimeout: DWORD,
+                         lpSecurityAttributes: var TSECURITY_ATTRIBUTES
+                         ): THANDLE{.
+    stdcall, dynlib: "kernel32", importc: "CreateNamedPipeW".}
+
+else:
+  proc createNamedPipeA*(lpname: cstring, dwOpenMode, dwPipeMode,
+                         nMaxInstances, nOutBufferSize, nInBufferSize,
+                         nDefaultTimeout: DWORD,
+                         lpSecurityAttributes: var TSECURITY_ATTRIBUTES
+                         ): THANDLE{.
+    stdcall, dynlib: "kernel32", importc: "CreateNamedPipeA".}
+
 when useWinUnicode:
   proc createProcessW*(lpApplicationName, lpCommandLine: WideCString,
                      lpProcessAttributes: ptr TSECURITY_ATTRIBUTES,

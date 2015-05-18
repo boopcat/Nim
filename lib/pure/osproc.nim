@@ -13,7 +13,7 @@
 include "system/inclrtl"
 
 import
-  strutils, os, strtabs, streams, cpuinfo
+  strutils, os, strtabs, streams, cpuinfo, oids
 
 when defined(windows):
   import winlean
@@ -395,11 +395,33 @@ when defined(Windows) and not defined(useNimRtl):
   #  O_RDONLY {.importc: "_O_RDONLY", header: "<fcntl.h>".}: int
 
   proc createPipeHandles(rdHandle, wrHandle: var THandle) =
+    let pipePath = "\\\\.\\Pipe\\nim.osproc." & $genOid
     var piInheritablePipe: TSECURITY_ATTRIBUTES
     piInheritablePipe.nLength = sizeof(TSECURITY_ATTRIBUTES).cint
     piInheritablePipe.lpSecurityDescriptor = nil
     piInheritablePipe.bInheritHandle = 1
-    if createPipe(rdHandle, wrHandle, piInheritablePipe, 1024) == 0'i32:
+    when useWinUnicode:
+      rdHandle = CreateNamedPipeW(newWideCString(pipePath),
+                                  PIPE_ACCESS_INBOUND,
+                                  PIPE_TYPE_BYTE or PIPE_WAIT,
+                                  1, 1024, 0, 0, piInheritablePipe)
+    else:
+      rdHandle = CreateNamedPipeA(pipePath,
+                                  PIPE_ACCESS_INBOUND,
+                                  PIPE_TYPE_BYTE or PIPE_WAIT,
+                                  1, 1024, 0, 0, piInheritablePipe)
+    if rdHandle == INVALID_HANDLE_VALUE:
+      raiseOSError(osLastError())
+
+    when useWinUnicode:
+      wrHandle = CreateFileW(newWideCString(pipePath), GENERIC_WRITE, 0,
+                             piInheritablePipe, OPEN_EXISTING,
+                             FILE_ATTRIBUTE_NORMAL, nil)
+    else:
+      wrHandle = CreateFileA(pipePath, GENERIC_WRITE, 0,
+                             piInheritablePipe, OPEN_EXISTING,
+                             FILE_ATTRIBUTE_NORMAL, nil)
+    if rdHandle == INVALID_HANDLE_VALUE:
       raiseOSError(osLastError())
 
   proc fileClose(h: THandle) {.inline.} =
