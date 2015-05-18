@@ -805,9 +805,10 @@ when defined(Windows):
         FILE_SHARE_DELETE or FILE_SHARE_READ or FILE_SHARE_WRITE,
         nil, OPEN_EXISTING, flags, 0
         )
+        
     else:
       result = createFileA(
-        path, 0'i32, 
+        path, 0'i32,
         FILE_SHARE_DELETE or FILE_SHARE_READ or FILE_SHARE_WRITE,
         nil, OPEN_EXISTING, flags, 0
         )

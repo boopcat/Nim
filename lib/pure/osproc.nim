@@ -395,32 +395,32 @@ when defined(Windows) and not defined(useNimRtl):
   #  O_RDONLY {.importc: "_O_RDONLY", header: "<fcntl.h>".}: int
 
   proc createPipeHandles(rdHandle, wrHandle: var THandle) =
-    let pipePath = "\\\\.\\Pipe\\nim.osproc." & ($genOid())
+    let pipePath = "\\\\.\\Pipe\\nim.osproc." & $(getCurrentProcessId()) & "." & ($genOid())
     var piInheritablePipe: TSECURITY_ATTRIBUTES
     piInheritablePipe.nLength = sizeof(TSECURITY_ATTRIBUTES).cint
     piInheritablePipe.lpSecurityDescriptor = nil
     piInheritablePipe.bInheritHandle = 1
     when useWinUnicode:
       rdHandle = createNamedPipeW(newWideCString(pipePath),
-                                  PIPE_ACCESS_INBOUND,
+                                  PIPE_ACCESS_INBOUND or FILE_FLAG_OVERLAPPED,
                                   PIPE_TYPE_BYTE or PIPE_WAIT,
-                                  1, 1024, 1024, 0, piInheritablePipe)
+                                  1, 1024, 1024, 0, addr piInheritablePipe)
     else:
       rdHandle = createNamedPipeA(pipePath,
                                   PIPE_ACCESS_INBOUND,
-                                  PIPE_TYPE_BYTE or PIPE_WAIT,
-                                  1, 1024, 1024, 0, piInheritablePipe)
+                                  PIPE_TYPE_BYTE or PIPE_WAIT or FILE_FLAG_OVERLAPPED,
+                                  1, 1024, 1024, 0, addr piInheritablePipe)
     if rdHandle == INVALID_HANDLE_VALUE:
       raiseOSError(osLastError())
 
     when useWinUnicode:
       wrHandle = createFileW(newWideCString(pipePath), GENERIC_WRITE, 0,
-                             piInheritablePipe, OPEN_EXISTING,
-                             FILE_ATTRIBUTE_NORMAL, nil)
+                             addr piInheritablePipe, OPEN_EXISTING,
+                             FILE_ATTRIBUTE_NORMAL or FILE_FLAG_OVERLAPPED, 0)
     else:
       wrHandle = createFileA(pipePath, GENERIC_WRITE, 0,
-                             piInheritablePipe, OPEN_EXISTING,
-                             FILE_ATTRIBUTE_NORMAL, nil)
+                             addr piInheritablePipe, OPEN_EXISTING,
+                             FILE_ATTRIBUTE_NORMAL or FILE_FLAG_OVERLAPPED, 0)
     if rdHandle == INVALID_HANDLE_VALUE:
       raiseOSError(osLastError())
 

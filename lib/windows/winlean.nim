@@ -115,7 +115,7 @@ proc writeFile*(hFile: THandle, Buffer: pointer, nNumberOfBytesToWrite: int32,
     stdcall, dynlib: "kernel32", importc: "WriteFile".}
 
 proc createPipe*(hReadPipe, hWritePipe: var THandle,
-                 lpPipeAttributes: var TSECURITY_ATTRIBUTES,
+                 lpPipeAttributes: ptr TSECURITY_ATTRIBUTES,
                  nSize: int32): WINBOOL{.
     stdcall, dynlib: "kernel32", importc: "CreatePipe".}
 
@@ -137,7 +137,7 @@ when useWinUnicode:
   proc createNamedPipeW*(lpname: WideCString, dwOpenMode, dwPipeMode,
                          nMaxInstances, nOutBufferSize, nInBufferSize,
                          nDefaultTimeout: DWORD,
-                         lpSecurityAttributes: var TSECURITY_ATTRIBUTES
+                         lpSecurityAttributes: ptr TSECURITY_ATTRIBUTES
                          ): THANDLE{.
     stdcall, dynlib: "kernel32", importc: "CreateNamedPipeW".}
 
@@ -145,7 +145,7 @@ else:
   proc createNamedPipeA*(lpname: cstring, dwOpenMode, dwPipeMode,
                          nMaxInstances, nOutBufferSize, nInBufferSize,
                          nDefaultTimeout: DWORD,
-                         lpSecurityAttributes: var TSECURITY_ATTRIBUTES
+                         lpSecurityAttributes: ptr TSECURITY_ATTRIBUTES
                          ): THANDLE{.
     stdcall, dynlib: "kernel32", importc: "CreateNamedPipeA".}
 
@@ -641,7 +641,7 @@ const
 
 when useWinUnicode:
   proc createFileW*(lpFileName: WideCString, dwDesiredAccess, dwShareMode: DWORD,
-                    lpSecurityAttributes: TSECURITY_ATTRIBUTES = nil,
+                    lpSecurityAttributes: ptr TSECURITY_ATTRIBUTES,
                     dwCreationDisposition, dwFlagsAndAttributes: DWORD,
                     hTemplateFile: THandle): THandle {.
       stdcall, dynlib: "kernel32", importc: "CreateFileW".}
@@ -649,7 +649,7 @@ when useWinUnicode:
     importc: "DeleteFileW", dynlib: "kernel32", stdcall.}
 else:
   proc createFileA*(lpFileName: cstring, dwDesiredAccess, dwShareMode: DWORD,
-                    lpSecurityAttributes: TSECURITY_ATTRIBUTES = nil,
+                    lpSecurityAttributes: ptr TSECURITY_ATTRIBUTES,
                     dwCreationDisposition, dwFlagsAndAttributes: DWORD,
                     hTemplateFile: THANDLE): THANDLE {.
       stdcall, dynlib: "kernel32", importc: "CreateFileA".}
@@ -790,3 +790,6 @@ proc getSystemTimes*(lpIdleTime, lpKernelTime,
 proc getProcessTimes*(hProcess: THandle; lpCreationTime, lpExitTime,
   lpKernelTime, lpUserTime: var TFILETIME): WINBOOL {.stdcall,
   dynlib: "kernel32", importc: "GetProcessTimes".}
+
+proc getCurrentProcessId*(): DWORD{.stdcall, dynlib: "kernel32",
+                                    importc: "GetCurrentProcessId".}
