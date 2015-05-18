@@ -416,11 +416,11 @@ when defined(Windows) and not defined(useNimRtl):
     when useWinUnicode:
       wrHandle = createFileW(newWideCString(pipePath), GENERIC_WRITE, 0,
                              piInheritablePipe, OPEN_EXISTING,
-                             FILE_ATTRIBUTE_NORMAL, 0)
+                             FILE_ATTRIBUTE_NORMAL, nil)
     else:
       wrHandle = createFileA(pipePath, GENERIC_WRITE, 0,
                              piInheritablePipe, OPEN_EXISTING,
-                             FILE_ATTRIBUTE_NORMAL, 0)
+                             FILE_ATTRIBUTE_NORMAL, nil)
     if rdHandle == INVALID_HANDLE_VALUE:
       raiseOSError(osLastError())
 
