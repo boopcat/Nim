@@ -641,7 +641,7 @@ const
 
 when useWinUnicode:
   proc createFileW*(lpFileName: WideCString, dwDesiredAccess, dwShareMode: DWORD,
-                    lpSecurityAttributes: TSECURITY_ATTRIBUTES,
+                    lpSecurityAttributes: TSECURITY_ATTRIiBUTES = nil,
                     dwCreationDisposition, dwFlagsAndAttributes: DWORD,
                     hTemplateFile: THandle): THandle {.
       stdcall, dynlib: "kernel32", importc: "CreateFileW".}
@@ -649,7 +649,7 @@ when useWinUnicode:
     importc: "DeleteFileW", dynlib: "kernel32", stdcall.}
 else:
   proc createFileA*(lpFileName: cstring, dwDesiredAccess, dwShareMode: DWORD,
-                    lpSecurityAttributes: TSECURITY_ATTRIBUTES,
+                    lpSecurityAttributes: TSECURITY_ATTRIBUTES = nil,
                     dwCreationDisposition, dwFlagsAndAttributes: DWORD,
                     hTemplateFile: THANDLE): THANDLE {.
       stdcall, dynlib: "kernel32", importc: "CreateFileA".}
