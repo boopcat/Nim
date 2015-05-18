@@ -404,21 +404,21 @@ when defined(Windows) and not defined(useNimRtl):
       rdHandle = createNamedPipeW(newWideCString(pipePath),
                                   PIPE_ACCESS_INBOUND,
                                   PIPE_TYPE_BYTE or PIPE_WAIT,
-                                  1, 1024, 0, 0, piInheritablePipe)
+                                  1, 1024, 1024, 0, piInheritablePipe)
     else:
       rdHandle = createNamedPipeA(pipePath,
                                   PIPE_ACCESS_INBOUND,
                                   PIPE_TYPE_BYTE or PIPE_WAIT,
-                                  1, 1024, 0, 0, piInheritablePipe)
+                                  1, 1024, 1024, 0, piInheritablePipe)
     if rdHandle == INVALID_HANDLE_VALUE:
       raiseOSError(osLastError())
 
     when useWinUnicode:
-      wrHandle = createFileW(newWideCString(pipePath), GENERIC_WRITE, 0,
+      wrHandle = createFileW(newWideCString(pipePath), GENERIC_WRITE, 0'i32,
                              piInheritablePipe, OPEN_EXISTING,
                              FILE_ATTRIBUTE_NORMAL, nil)
     else:
-      wrHandle = createFileA(pipePath, GENERIC_WRITE, 0,
+      wrHandle = createFileA(pipePath, GENERIC_WRITE, 0'i32,
                              piInheritablePipe, OPEN_EXISTING,
                              FILE_ATTRIBUTE_NORMAL, nil)
     if rdHandle == INVALID_HANDLE_VALUE:
